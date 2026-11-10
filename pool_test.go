@@ -1,6 +1,7 @@
 package pg_test
 
 import (
+	"testing"
 	"time"
 
 	"github.com/go-pg/pg/v9"
@@ -35,6 +36,9 @@ func (t *PoolTest) TestPoolReusesConnection(c *C) {
 }
 
 func (t *PoolTest) TestPoolMaxSize(c *C) {
+	if testing.Short() {
+		c.Skip("timing-dependent pool size assertion is flaky under -race on slow CI; runs in the non-short passes")
+	}
 	N := 1000
 
 	perform(N, func(int) {

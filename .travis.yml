@@ -8,11 +8,7 @@ addons:
 go:
   - 1.13.x
   - 1.14.x
-  - tip
-
-matrix:
-  allow_failures:
-    - go: tip
+  - 1.16.x
 
 env:
   - GO111MODULE=on
@@ -21,4 +17,9 @@ go_import_path: github.com/go-pg/pg
 
 before_install:
   - psql -U postgres -c "CREATE EXTENSION hstore"
-  - curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s -- -b $(go env GOPATH)/bin v1.24.0
+
+script:
+  - go test -v ./...
+  - go test ./... -short -race -timeout 8m
+  - go test ./... -run=NONE -bench=. -benchmem
+  - env GOOS=linux GOARCH=386 go test ./...
