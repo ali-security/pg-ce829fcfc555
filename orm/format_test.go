@@ -144,6 +144,36 @@ var formatTests = []formatTest{
 		paramsMap: paramsMap{"string": "my_value"},
 		wanted:    "?string",
 	},
+
+	{
+		q:      "select 1-?0, 1.0-?1, 1.0-?2",
+		params: params{int64(-1), float64(-1.5), math.Inf(-1)},
+		wanted: "select 1- -1, 1.0- -1.5, 1.0-'-Infinity'",
+	},
+	{
+		q:      "select 1+?0, 1.0+?1",
+		params: params{int64(-1), float64(-1.5)},
+		wanted: "select 1+-1, 1.0+-1.5",
+	},
+	{
+		q:      "select 1-?0, ?1",
+		params: params{int64(-1), "foo\n;\nSELECT * FROM passwords;--"},
+		// Without a space before the negative number, the first line ends in a comment
+		wanted: `select 1- -1, 'foo
+;
+SELECT * FROM passwords;--'`,
+	},
+	{
+		q:      "?0",
+		params: params{int64(-1)},
+		wanted: "-1",
+	},
+	{
+		q:         "select 1-?0, 1-?1, 1-?2, 1-?3, 1.0-?4, 1-?num",
+		params:    params{int8(-1), int16(-1), int32(-1), int(-1), float32(-1.5)},
+		paramsMap: paramsMap{"num": int64(-1)},
+		wanted:    "select 1- -1, 1- -1, 1- -1, 1- -1, 1.0- -1.5, 1- -1",
+	},
 }
 
 func TestFormatQuery(t *testing.T) {

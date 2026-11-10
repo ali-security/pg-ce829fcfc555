@@ -146,7 +146,7 @@ func appendBoolValue(b []byte, v reflect.Value, _ int) []byte {
 }
 
 func appendIntValue(b []byte, v reflect.Value, _ int) []byte {
-	return strconv.AppendInt(b, v.Int(), 10)
+	return appendInt(b, v.Int())
 }
 
 func appendUintValue(b []byte, v reflect.Value, _ int) []byte {
